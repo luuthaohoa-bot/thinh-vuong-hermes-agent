@@ -1,5 +1,14 @@
 # Thịnh Vượng Hermes Agent — bản khởi đầu 0.1
 
+## Cập nhật Master thử nghiệm
+
+Xem `MASTER.md` cho kiến trúc 5 worker, `EXCEL.md` cho nhập Excel và `ROUTING.md`
+cho phân luồng. Chạy `hermes demo` để kiểm thử quy trình bằng dữ liệu tổng hợp.
+Mọi bản nháp thiếu luồng đều bị chặn duyệt, kể cả ví dụ cũ bên dưới: cần đặt
+quy tắc và dùng `route` trước khi approve. Quy tắc thật hiện để trống.
+Thông tin phát hành GitHub trong phần cuối là ghi chép bản ban đầu; không dùng
+nó để xác định bản mới nhất đã được tải lên hay chưa. Xem trạng thái bàn giao.
+
 Agent xử lý bán hàng chạy cục bộ bằng Python, điều khiển qua dòng lệnh. Luồng: PDF → nội dung chờ kiểm tra → bản nháp có cấu trúc → Excel → người dùng duyệt → ghi website **giả lập**. Có ghi nhận hàng bán trước và chốt giá thị trường sau.
 
 Đây là ứng dụng độc lập mang tên Hermes, chưa tích hợp với một framework Hermes bên ngoài. Không có lời gọi đến website thật, không cần OpenAI API key, không gửi dữ liệu lên dịch vụ AI.
