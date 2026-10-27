@@ -1,0 +1,10 @@
+{
+  "source_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "order_ref": "DEMO-2026-10-24-001",
+  "customer": "Khach hang DEMO - khong phai du lieu that",
+  "sale_date": "2026-10-24",
+  "lines": [
+    {"line_id": "1", "product": "Ca thu demo", "unit": "kg", "quantity": "8.4", "unit_price_vnd": null},
+    {"line_id": "2", "product": "Ca nuc demo", "unit": "kg", "quantity": "10", "unit_price_vnd": "45000", "price_basis": "Gia demo da xac nhan"}
+  ]
+}
