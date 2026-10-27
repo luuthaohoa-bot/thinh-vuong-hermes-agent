@@ -25,6 +25,7 @@ class WorkflowTests(unittest.TestCase):
         self.root.mkdir()
         self.store = Store(self.root / 'db.sqlite')
         self.record = json.loads((BASE / 'examples/order.json').read_text())
+        self.record['routing'] = {'status': 'assigned', 'destination': 'TEST ONLY', 'rules_hash': 'synthetic'}
 
     def tearDown(self):
         self.store.close()
