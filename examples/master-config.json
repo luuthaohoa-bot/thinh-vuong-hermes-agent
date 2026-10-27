@@ -1,0 +1,12 @@
+{
+  "host": "windows",
+  "mode": "mock",
+  "business_rules": {},
+  "daily_report": {
+    "enabled": false,
+    "time": "07:00",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "channel": "telegram",
+    "recipient": null
+  }
+}
