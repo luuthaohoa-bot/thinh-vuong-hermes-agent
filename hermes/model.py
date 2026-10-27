@@ -47,6 +47,16 @@ def validate(record):
         item['unit_price_vnd'] = None if price is None else amount(price)
         item['price_basis'] = required(line.get('price_basis'), 'price_basis') if price is not None else 'pending_market'
         result['lines'].append(item)
+    if 'routing' in record:
+        routing = record['routing']
+        if not isinstance(routing, dict):
+            raise ValueError('Invalid routing')
+        destination = routing.get('destination')
+        status = 'pending' if destination is None else 'assigned'
+        if routing.get('status') != status:
+            raise ValueError('Routing status does not match destination')
+        result['routing'] = {'destination': None if destination is None else required(destination, 'destination'),
+                             'status': status, 'rules_hash': required(routing.get('rules_hash'), 'rules_hash')}
     return result
 
 

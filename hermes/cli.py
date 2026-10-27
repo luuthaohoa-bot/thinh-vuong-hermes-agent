@@ -21,9 +21,13 @@ def main(argv=None):
     p = argparse.ArgumentParser(description='Hermes local review workflow (mock website only)')
     p.add_argument('--db', default='data/hermes.sqlite')
     sub = p.add_subparsers(dest='command', required=True)
+    sub.add_parser('demo')
+    s = sub.add_parser('master'); s.add_argument('--out', required=True)
     s = sub.add_parser('intake'); s.add_argument('pdf'); s.add_argument('--out', required=True); s.add_argument('--ocr-pages')
     s = sub.add_parser('bhx'); s.add_argument('pdf'); s.add_argument('--date', required=True); s.add_argument('--out', required=True)
-    s = sub.add_parser('draft'); s.add_argument('json')
+    s = sub.add_parser('excel'); s.add_argument('xlsx'); s.add_argument('--ledger-id', required=True); s.add_argument('--out', required=True); s.add_argument('--routes')
+    s = sub.add_parser('route'); s.add_argument('id'); s.add_argument('--rules', required=True); s.add_argument('--hash', required=True)
+    s = sub.add_parser('draft'); s.add_argument('json'); s.add_argument('--record', help='Select an order_ref from an intake report')
     s = sub.add_parser('show'); s.add_argument('id')
     s = sub.add_parser('revise'); s.add_argument('id'); s.add_argument('json'); s.add_argument('--hash', required=True)
     s = sub.add_parser('settle'); s.add_argument('id'); s.add_argument('prices'); s.add_argument('--hash', required=True)
@@ -33,8 +37,20 @@ def main(argv=None):
     args = p.parse_args(argv)
     store = None
     try:
-        if args.command == 'intake':
+        if args.command == 'demo':
+            from .demo import run
+            result = run()
+        elif args.command == 'intake':
             result = intake(args.pdf, SidecarOCR(read(args.ocr_pages)) if args.ocr_pages else None)
+            save(args.out, result)
+        elif args.command == 'excel':
+            from .excel import candidates
+            result = candidates(args.xlsx, args.ledger_id)
+            from .routing import route
+            config = read(args.routes) if args.routes else {'rules': []}
+            route('validate-config', config)
+            for record in result['records']:
+                record['routing'] = route(record['customer'], config)
             save(args.out, result)
         elif args.command == 'bhx':
             from .bhx import candidates
@@ -43,10 +59,25 @@ def main(argv=None):
         else:
             Path(args.db).parent.mkdir(parents=True, exist_ok=True)
             store = Store(args.db)
-            if args.command == 'draft':
-                result = store.create(read(args.json))
+            if args.command == 'master':
+                from .master import run
+                result = run(store)
+                save(args.out, result)
+            elif args.command == 'draft':
+                payload = read(args.json)
+                if args.record:
+                    matches = [r for r in payload.get('records', []) if r['order_ref'] == args.record]
+                    if len(matches) != 1:
+                        raise ValueError('Select exactly one available candidate order_ref')
+                    payload = matches[0]
+                result = store.create(payload)
             elif args.command == 'show':
                 result = store.get(args.id)
+            elif args.command == 'route':
+                from .routing import route
+                row = store.get(args.id)
+                row['record']['routing'] = route(row['record']['customer'], read(args.rules))
+                result = store.revise(args.id, row['record'], args.hash)
             elif args.command == 'revise':
                 result = store.revise(args.id, read(args.json), args.hash)
             elif args.command == 'settle':

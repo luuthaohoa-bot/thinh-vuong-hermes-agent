@@ -93,6 +93,8 @@ class Store:
             row = self.get(order_id)
             if row['hash'] != expected_hash:
                 raise ValueError('Stale review hash')
+            if row['record'].get('routing', {}).get('status') != 'assigned':
+                raise ValueError('Assign a customer route before approval')
             self.db.execute('UPDATE drafts SET approved_hash=hash,approver=? WHERE id=?', (actor, order_id))
             self.event('approved', row, actor)
         return self.get(order_id)
@@ -103,6 +105,8 @@ class Store:
             row = self.get(order_id)
             if row['approved_hash'] != row['hash']:
                 raise ValueError('Approve the exact current revision before writing')
+            if row['record'].get('routing', {}).get('status') != 'assigned':
+                raise ValueError('Assign a customer route before writing')
             key = f"{order_id}:{row['revision']}"
             payload = {'connector': 'haisanthinhvuong_mock', 'operation': 'upsert_order',
                        'order_id': order_id, 'revision': row['revision'],

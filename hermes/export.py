@@ -43,4 +43,12 @@ def export_review(row, path):
         ws.column_dimensions[col].width = width
     ws.freeze_panes = 'D12'
     ws.auto_filter.ref = f'A11:G{11 + len(row["record"]["lines"])}'
+    routing = row['record'].get('routing')
+    if routing:
+        literal(ws.cell(1, 4), 'Routing status')
+        literal(ws.cell(1, 5), routing['status'])
+        literal(ws.cell(2, 4), 'Destination')
+        literal(ws.cell(2, 5), routing['destination'] or 'PENDING')
+        literal(ws.cell(3, 4), 'Routing rules hash')
+        literal(ws.cell(3, 5), routing['rules_hash'])
     wb.save(path)
